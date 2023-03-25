@@ -6,11 +6,11 @@ This CLI collects all `TODO` statements inside a given project directory, and pr
 ## Usage
 
 ``` shell
-todos --dir=<directory> --format=<format> --output=<output>
+todos --dir=<directory> --output=<output>
 ```
 
 ## Steps to be completed
 - [x] traverses individual files
-- [ ] traverses directory trees
+- [x] traverses directory trees
 - [ ] full flag and help documentation
 - [ ] released on NPM

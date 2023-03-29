@@ -4,6 +4,8 @@ const readline = require('readline');
 const { ExtensionMap } = require('./extensions.js');
 
 const CommentRegex = /^[ |\t]*\/\/.*(?:todo|fixme|note)/i
+const ENV_DIRECTORY = process.env.TODOS_DIRECTORY || undefined;
+const ENV_OUTPUT = process.env.TODOS_OUTPUT || undefined;
 
 function printHelp() {
     const help =
@@ -15,17 +17,27 @@ function printHelp() {
 
 function getArgs() {
     const argsList = process.argv
-    const parsedArgs = { dir:
-			 process.argv[1].includes('--') ?
-			 process.argv[1].split('=')[1]:
-			 process.argv[1]
-		       };
-    if (argsList.length == 2) {
-	// assume that the directory requested is the current one
-	parsedArgs.dir = __dirname;
-	// printHelp();
+    const parsedArgs = {
+	dir: path.resolve(__dirname),
+	output: 'STDOUT'
+    };
+    console.log(`${argsList.length} is the length`);
+
+    if (ENV_DIRECTORY != undefined) {
+	parsedArgs['dir'] = ENV_DIRECTORY;
+    } else if (process.argv[2]) {
+	parsedArgs['dir'] = process.argv[3].includes('--directory') ?
+	    process.argv[2].split('=')[1] :
+	    process.argv[2];
     }
-    // default cli args
+
+    if (ENV_OUTPUT != undefined) {
+	parsedArgs['output'] = ENV_OUTPUT;
+    } else if (process.argv[3]) {
+	parsedArgs['dir'] = process.argv[4].includes('--output') ?
+	    process.argv[3].split('=')[1] :
+	    process.argv[3];
+    }
 
     return parsedArgs;
 }
@@ -76,6 +88,10 @@ async function getFiles(directory) {
 }
 // TODO: Finish this function
 async function main() {
+    if (process.argv.length === 3 && process.argv[2].includes('help')){
+	printHelp();
+	return;
+    }
     const args = getArgs();
     console.log(`Now scanning ${args.dir}`);
     const items = fs.readdirSync(args.dir);

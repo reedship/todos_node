@@ -1,0 +1,23 @@
+{
+  "name": "todos",
+  "version": "1.0.0",
+  "description": "a cli tool to collect all TODO-style comments within a given directory. All TODOs will be printed to your chosen output (STDOUT, log file, csv) and a github issue will be made for each TODO if possible.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reedship/todos_node.git"
+  },
+  "keywords": [
+    "todo",
+    "cli"
+  ],
+  "author": "Reed Shipley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reedship/todos_node/issues"
+  },
+  "homepage": "https://github.com/reedship/todos_node#readme"
+}

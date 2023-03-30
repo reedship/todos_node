@@ -21,12 +21,11 @@ function getArgs() {
 	dir: path.resolve(__dirname),
 	output: 'STDOUT'
     };
-    console.log(`${argsList.length} is the length`);
 
     if (ENV_DIRECTORY != undefined) {
 	parsedArgs['dir'] = ENV_DIRECTORY;
     } else if (process.argv[2]) {
-	parsedArgs['dir'] = process.argv[3].includes('--directory') ?
+	parsedArgs['dir'] = process.argv[2].includes('--directory') ?
 	    process.argv[2].split('=')[1] :
 	    process.argv[2];
     }
@@ -34,7 +33,7 @@ function getArgs() {
     if (ENV_OUTPUT != undefined) {
 	parsedArgs['output'] = ENV_OUTPUT;
     } else if (process.argv[3]) {
-	parsedArgs['dir'] = process.argv[4].includes('--output') ?
+	parsedArgs['dir'] = process.argv[3].includes('--output') ?
 	    process.argv[3].split('=')[1] :
 	    process.argv[3];
     }

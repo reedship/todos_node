@@ -14,4 +14,5 @@ todos --dir=<directory> --output=<output>
 - [x] traverses individual files
 - [x] traverses directory trees
 - [ ] full flag and help documentation
+- [ ] send issues to user git repository
 - [ ] released on NPM

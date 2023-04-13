@@ -85,6 +85,17 @@ async function getFiles(directory) {
     }
     return unreadFiles;
 }
+
+function writeOutput(args, todos) {
+    if (args.output === 'CSV') {
+	// write to generated output.csv file
+	console.log(`Writing ${todos.length} todos to csv...`);
+    } else {
+	// assume STDOUT
+	console.log(todos);
+    }
+}
+
 // TODO: Finish this function
 async function main() {
     if (process.argv.length === 3 && process.argv[2].includes('help')){
@@ -101,6 +112,6 @@ async function main() {
 	todos.push(result);
     }
     todos = todos.flat();
-    console.log(todos)
+    writeOutput(args,todos);
 }
 main()

@@ -3,7 +3,7 @@ const path = require('path');
 const readline = require('readline');
 const { ExtensionMap } = require('./extensions.js');
 
-const CommentRegex = /^[ |\t]*\/\/.*(?:todo|fixme|note)/i
+const CommentRegex = /^[ |\t]*\/\/.*(?:todo|fixme|note|fix me)/i
 const ENV_DIRECTORY = process.env.TODOS_DIRECTORY || undefined;
 const ENV_OUTPUT = process.env.TODOS_OUTPUT || undefined;
 

@@ -90,6 +90,36 @@ function writeOutput(args, todos) {
     if (args.output === 'CSV') {
 	// write to generated output.csv file
 	console.log(`Writing ${todos.length} todos to csv...`);
+	// include "completed" checkbox column
+	todos.map(todo => todo.completed = false);
+	const csvString = [
+	    [
+		'FilePath',
+		'FileName',
+		'Extension',
+		'Line Number',
+		'Line',
+		'Completed'
+	    ],
+	    ...todos.map(todo=>[
+		todo.filePath,
+		todo.fileName,
+		todo.extension,
+		todo.lineNumber,
+		todo.line,
+		todo.completed
+	    ].map(str => `"${str.replace(/"/g, '\"')}"`))
+	]
+	      .map(e=>e.join(','))
+	      .join('\n');
+	fs.writeFile('output.csv',csvString, 'utf8', function (err) {
+	    if (err) {
+		console.log('Error when writing csv. File may not have been saved');
+		console.log(err);
+	    } else {
+		console.log('Output has been saved to output.csv');
+	    }
+	});
     } else {
 	// assume STDOUT
 	console.log(todos);

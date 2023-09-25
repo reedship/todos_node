@@ -25,7 +25,7 @@ function getArgs() {
     if (ENV_DIRECTORY != undefined) {
 	parsedArgs['dir'] = ENV_DIRECTORY;
     } else if (process.argv[2]) {
-	parsedArgs['dir'] = process.argv[2].includes('--directory') ?
+	parsedArgs['dir'] = process.argv[2].includes('--dir') ?
 	    process.argv[2].split('=')[1] :
 	    process.argv[2];
     }
@@ -33,11 +33,10 @@ function getArgs() {
     if (ENV_OUTPUT != undefined) {
 	parsedArgs['output'] = ENV_OUTPUT;
     } else if (process.argv[3]) {
-	parsedArgs['dir'] = process.argv[3].includes('--output') ?
+	parsedArgs['output'] = process.argv[3].includes('--output') ?
 	    process.argv[3].split('=')[1] :
 	    process.argv[3];
     }
-
     return parsedArgs;
 }
 
@@ -53,11 +52,11 @@ async function searchFile(file) {
 	lineNumber++;
 	if (line.match(CommentRegex)) {
 	    const fileName = file.split('/').pop();
-	    const extension = ExtensionMap[fileName.split('.').pop()];
+	    const fileType = ExtensionMap[fileName.split('.').pop()];
 	    lines.push({
 		filePath: file,
 		fileName,
-		extension,
+		fileType,
 		lineNumber,
 		line: line.trim()
 	    });
@@ -74,7 +73,7 @@ async function getFiles(directory) {
 	if (filename[0] === '.') continue;
 	const itemPath = path.join(directory, filename)
 	if (items[i].isDirectory()){
-	    console.log(`${items[i].name} is a directory. Opening now..`);
+	    console.log(`Now scanning directory: ${directory}/${items[i].name}`);
 	    const newFiles = await getFiles(itemPath)
 	    if (newFiles.length != 0) {
 		unreadFiles = unreadFiles.concat(newFiles);
@@ -87,16 +86,16 @@ async function getFiles(directory) {
 }
 
 function writeOutput(args, todos) {
-    if (args.output === 'CSV') {
+    if (args.output.toLowerCase() === 'csv') {
 	// write to generated output.csv file
 	console.log(`Writing ${todos.length} todos to csv...`);
 	// include "completed" checkbox column
 	todos.map(todo => todo.completed = false);
 	const csvString = [
 	    [
-		'FilePath',
-		'FileName',
-		'Extension',
+		'File Path',
+		'File Name',
+		'File Type',
 		'Line Number',
 		'Line',
 		'Completed'
@@ -104,20 +103,20 @@ function writeOutput(args, todos) {
 	    ...todos.map(todo=>[
 		todo.filePath,
 		todo.fileName,
-		todo.extension,
+		todo.fileType,
 		todo.lineNumber,
 		todo.line,
 		todo.completed
-	    ].map(str => `"${str.replace(/"/g, '\"')}"`))
+	    ].map(str => `"${str.toString().replace(/"/g, '\"')}"`))
 	]
 	      .map(e=>e.join(','))
 	      .join('\n');
-	fs.writeFile('output.csv',csvString, 'utf8', function (err) {
+	fs.writeFile('todos.csv',csvString, 'utf8', function (err) {
 	    if (err) {
 		console.log('Error when writing csv. File may not have been saved');
 		console.log(err);
 	    } else {
-		console.log('Output has been saved to output.csv');
+		console.log('Output has been saved to todos.csv');
 	    }
 	});
     } else {
@@ -133,7 +132,7 @@ async function main() {
 	return;
     }
     const args = getArgs();
-    console.log(`Now scanning ${args.dir}`);
+    console.log(`Now scanning directory: ${args.dir}`);
     const items = fs.readdirSync(args.dir);
     let unreadFiles = await getFiles(args.dir)
     let todos = []

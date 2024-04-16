@@ -17,13 +17,13 @@ async function main() {
 	console.log("NO ISSUES OPEN")
 	return;
     }
-    console.log({openIssues});
     for (let i=0; i< openIssues.length; i++) {
 	let result = await octokit.request(`PATCH /repos/${owner}/${repo}/issues/${openIssues[i].number}`, {
 	    state: 'closed',
 	    headers: {'X-GitHub-Api-Version': '2022-11-28'}
 	});
-	console.log({result});
     }
 }
+
 main();
+console.log("Marked all issues as closed");

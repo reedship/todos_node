@@ -3,11 +3,12 @@ const path = require('path');
 const readline = require('readline');
 const { ExtensionMap } = require('./extensions.js');
 const { Octokit, App } = require("octokit");
-const CommentRegex = /^[ |\t]*\/\/.*(?:todo|fixme|note|fix me)/i
+const CommentRegex = /[ |\t]*\/\/.*[todo|fixme|note|fix me]\:.*/gi
 const ENV_DIRECTORY = process.env.TODOS_DIRECTORY || undefined;
 const ENV_OUTPUT = process.env.TODOS_OUTPUT || undefined;
 const GITHUB_URL = process.env.TODOS_GITHUB || undefined; // should have format of 'OWNER/REPO'
 const GITHUB_ACCESS_TOKEN = process.env.TODOS_TOKEN || undefined;
+const [owner, repo] = GITHUB_URL.split('/');
 
 const octokit = new Octokit({auth: GITHUB_ACCESS_TOKEN});
 
@@ -76,7 +77,8 @@ async function searchFile(file) {
 	if (line.match(CommentRegex)) {
 	    const fileName = file.split('/').pop();
 	    const fileType = ExtensionMap[fileName.split('.').pop()];
-	    const title = `TODO:${fileName}:${lineNumber}`;
+	    const title = `TODO:${fileName}:${line.slice(0,20)}`;
+	    console.log(`Found todo with title: ${title}`);
 	    lines.push({
 		title,
 		filePath: file,
@@ -139,8 +141,8 @@ function writeOutput(args, todos) {
 	      .join('\n');
 	fs.writeFile('todos.csv',csvString, 'utf8', function (err) {
 	    if (err) {
-		console.log('Error when writing csv. File may not have been saved');
-		console.log(err);
+		console.log(`Error when writing csv. File may not have been saved
+${err}`);
 	    } else {
 		console.log('Output has been saved to todos.csv');
 	    }
@@ -151,39 +153,53 @@ function writeOutput(args, todos) {
 }
 
 async function getIssues() {
-    const {owner, repo} = GITHUB_URL.split('/');
-    const issues = await octokit.request(`GET /repos/${GITHUB_URL}/issues`, {
+    const issues = await octokit.request(`GET /repos/${owner}/${repo}/issues`, {
 	owner: owner,
 	repo: repo,
 	headers: {
 	    'X-GitHub-Api_Version': '2022-11-28'
 	}
     });
-    let openIssues = issues.data.map(x => x.state === 'open');
+
+    let openIssues = issues.data.filter(x => x.state == 'open' && x.title.match(/(?:todo|fixme|note|fix me)\:.*\:.*/gi));
     return openIssues;
 }
 
-function filterIssues(todos, issues) {
-    if (!issues.data) return {todos, issuesToBeRemoved: []};
-    const patt = new RegExp("/(?:todo|fixme|note|fix me)\:.*\:\d*/gi");
-    const todosIssues = issues.data.select((issue) => patt.test(issue.title));
-    const issuesToBeRemoved = [];
-    todosIssues.forEach((issue,index)=> {
-	if (!todos.values().contains(issue.title)) {
-	    todos.splice(index,1); //remove this item from our todos
-	    issuesToBeRemoved.push(issue); // add to list of items to be
-	}
+function removeDuplicates(arr) {
+    let unique = [];
+    arr.forEach(element => {
+        if (!unique.includes(element)) {
+            unique.push(element);
+        }
     });
-    console.log(`Found ${issuesToBeremoved.length} issues that can be closed on github`);
-    return [todos, issuesToBeRemoved];
+    return unique;
+}
+
+function filterIssues(todos, issues) {
+    if (issues.length == 0) {
+	console.log("No issues matching title pattern on github");
+	return [todos, []];
+    }
+    console.log(`Checking the status for ${todos.length} todos in the directory`);
+    const todoTitles = todos.map((x)=>x.title);
+    const issueTitles = issues.map((x)=>x.title);
+    const newTodos = todos.filter((todo) => !issueTitles.includes(todo.title));
+    const issuesToBeRemoved = issues.filter((issue) => !todoTitles.includes(issue.title));
+    console.log(`Found ${issuesToBeRemoved.length} issues that can be closed on github`);
+    return [newTodos, issuesToBeRemoved];
 }
 
 async function deleteGithubIssues(issuesToBeRemoved) {
-    if (!issuesToBeRemoved) return;
-    // IMPLEMENT THIS
-    issuesToBeRemoved.forEach((issue) => {
-	console.log(`Deleting ${issue.title}`);
-    });
+    if (!issuesToBeRemoved) {
+	console.log("No issues to be closed");
+	return;
+    }
+    for (let i=0; i< issuesToBeRemoved.length; i++) {
+	let result = await octokit.request(`PATCH /repos/${owner}/${repo}/issues/${issuesToBeRemoved[i]}`, {
+	    state: 'closed',
+	    headers: {'X-GitHub-Api-Version': '2022-11-28'}
+	});
+    }
 }
 
 async function handleIssues(todos) {
@@ -194,16 +210,22 @@ async function handleIssues(todos) {
     }
     const issues = await getIssues();
     const result = filterIssues(todos, issues);
-    await deleteGithubIssues(result.issuesToBeRemoved);
-    await uploadNewGithubIssues(result.todos);
+    if (result[1].length != 0) {
+	await deleteGithubIssues(result[1]);
+    } else {
+	console.log("No issues to delete on github");
+    }
+    if (result[0].length != 0) {
+	_ = await uploadNewGithubIssues(result[0]);
+    } else {
+	console.log("No new TODO comments in project");
+    }
 }
 
 async function uploadNewGithubIssues(todos) {
     if (!todos || !GITHUB_URL) return;
-    console.log({GITHUB_URL});
-    const [owner, repo] = GITHUB_URL.split('/');
-    console.log(owner,repo);
     for (let i=0;i<todos.length;i++){
+	console.log("attempting to upload issue to github");
 	let result = await octokit.request(`POST /repos/${owner}/${repo}/issues`, {
 	    owner: owner,
 	    repo: repo,
@@ -212,7 +234,7 @@ async function uploadNewGithubIssues(todos) {
 	    headers: {'X-GitHub-Api-Version': '2022-11-28'}
 	});
 	if (result) {
-	    console.log({result});
+	    console.log(`Uploaded issue in ${todos[i].fileName} to github`);
 	}
     }
 }

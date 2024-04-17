@@ -26,8 +26,6 @@ TODOS_GITHUB=<github_owner>/<repo_name> TODOS_TOKEN=<github_access_token> node m
   .
 ### NPM Package
 
-Write this later.
-
 ``` json-with-comments
 // Package.json
 {
@@ -45,13 +43,3 @@ Write this later.
 	// truncated...
 }
 ```
-
-## Steps to be completed
-
-- [x] traverses individual files
-- [x] traverses directory trees
-- [x] write output to csv
-- [ ] full flag and help documentation
-- [x] send issues to user git repository
-- [x] mark generated issues as closed when their 'todo' comment is no longer present
-- [ ] released on NPM

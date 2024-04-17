@@ -32,10 +32,10 @@ function printHelp() {
 	"output: output format. Defaults to STDOUT. Options are CSV or STDOUT. If CSV is selected, the output will be written to `output.csv` in the current working directory",
 	"",
 	"Usage:",
-	"$ GITHUB_URL=todos --dir=<directory> --output=<output>"
+	"$ TODOS_GITHUB=johnsmith/test_repo TODOS_TOKEN=abcdefghijklmnopqrstuvwxyz node main.js --dir=<directory> --output=<output>"
     ].join("\n");
     console.log(help);
-    return 1;
+n    return 1;
 }
 
 function getArgs() {

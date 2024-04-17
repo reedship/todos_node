@@ -4,7 +4,7 @@
   "description": "a cli tool to collect all TODO-style comments within a given directory. All TODOs will be printed to your chosen output (STDOUT, log file, csv) and a github issue will be made for each TODO if possible.",
     "main": "main.js",
     "bin": {
-	"todos": "main.js"
+	"todos": "tomain.js"
     },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

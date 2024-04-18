@@ -37,8 +37,8 @@ TODOS_GITHUB=<github_owner>/<repo_name> TODOS_TOKEN=<github_access_token> node m
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"test": "react scripts test && npm run todos", // add todos on to existing test script
-		"todos": "todos --dir=<your src dir> --output=csv"
+		"test": "react scripts test && npm run todos", // todos can be added onto your existing test scripts
+		"todos": "todos --directory=<your src dir> --output=csv"
 	}
 	// truncated...
 }

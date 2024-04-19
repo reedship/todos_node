@@ -1,5 +1,8 @@
 # Todos
 
+## WARNING
+
+This package has not been fully tested and should not be included in your work or personal projects. Testing is still ongoing. At this time I make no guarantee of quality.
 ## Summary
 
 This CLI collects all `TODO` statements inside a given project directory, and presents them as a list of outstanding issues to be completed. This tool can be used for reporting, documentation, and issue generation on github.

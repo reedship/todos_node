@@ -35,7 +35,7 @@ function printHelp() {
 	"$ TODOS_GITHUB=johnsmith/test_repo TODOS_TOKEN=abcdefghijklmnopqrstuvwxyz node main.js --dir=<directory> --output=<output>"
     ].join("\n");
     console.log(help);
-n    return 1;
+    return 1;
 }
 
 function getArgs() {
